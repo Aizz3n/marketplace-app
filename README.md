@@ -10,17 +10,6 @@ A simple fullstack marketplace web application where users can register as buyer
 - **Testing**: Jest, Supertest
 - **Version Control**: Git + GitHub
 
-## 📁 Project Structure
-
-marketplace-app/
-├── backend/
-│ ├── src/
-│ └── tests/
-├── frontend/
-├── .gitignore
-├── README.md
-└── package.json
-
 ## 🚀 Getting Started
 
 ### Prerequisites
