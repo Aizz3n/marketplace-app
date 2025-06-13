@@ -8,7 +8,6 @@ const db = new sqlite3.Database(dbPath, (err) => {
   } else {
     console.log("Conectado ao banco de dados SQLite.");
 
-    // Criação da tabela users, se não existir
     db.run(
       `
       CREATE TABLE IF NOT EXISTS users (
