@@ -9,7 +9,7 @@ A simple fullstack marketplace web application where users can register as buyer
 - **Database**: SQLite3
 - **Testing**: Jest, Supertest
 - **Version Control**: Git + GitHub
-- 
+  
 ## 🚀 Getting Started
 
 ### Prerequisites
