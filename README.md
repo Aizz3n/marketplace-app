@@ -13,7 +13,7 @@ A simple fullstack marketplace web application where users can register as buyer
 ## 📁 Project Structure
 
 marketplace-app/
-├── backend/
+backend/
 │ ├── src/
 │ └── tests/
 ├── frontend/
