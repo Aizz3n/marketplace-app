@@ -67,6 +67,7 @@ const UserController = {
         return res.status(401).json({ error: "Invalid credentials." });
       }
 
+      console.log("JWT_SECRET:", process.env.JWT_SECRET);
       const token = jwt.sign(
         { id: user.id, email: user.email, role: user.role },
         process.env.JWT_SECRET,
