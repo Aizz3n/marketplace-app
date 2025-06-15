@@ -27,6 +27,27 @@ const db = new sqlite3.Database(dbPath, (err) => {
         }
       }
     );
+
+    db.run(
+      `
+      CREATE TABLE IN NOT EXISTS products (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        description TEXT,
+        price REAL NOT NULL,
+        seller_id INTEGER NOT NULL,
+        create_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (seller_id) REFERENCES users(id)
+      )      
+      `,
+      (err) => {
+        if (err) {
+          console.error("Error creating products table:", err.message);
+        } else {
+          console.log("Table products created of already exists.");
+        }
+      }
+    );
   }
 });
 
