@@ -1,5 +1,6 @@
 const bcrypt = require("bcryptjs");
 const db = require("../database/database");
+const jwt = require("jsonwebtoken");
 
 const UserController = {
   register: async (req, res) => {
@@ -17,9 +18,9 @@ const UserController = {
       const hashedPassword = await bcrypt.hash(password, 10);
 
       const insertUser = `
-            INSERT INTO users (username, email, password, role)
-            VALUES (?, ?, ?, ?)
-        `;
+        INSERT INTO users (username, email, password, role)
+        VALUES (?, ?, ?, ?)
+      `;
 
       db.run(
         insertUser,
@@ -57,17 +58,24 @@ const UserController = {
       }
 
       if (!user) {
-        return res.status(401).json({ error: "Invalide credentials." });
+        return res.status(401).json({ error: "Invalid credentials." });
       }
 
       const isValid = await bcrypt.compare(password, user.password);
 
       if (!isValid) {
-        return res.stauts(401).json({ error: "Invalid credentials." });
+        return res.status(401).json({ error: "Invalid credentials." });
       }
 
+      const token = jwt.sign(
+        { id: user.id, email: user.email, role: user.role },
+        process.env.JWT_SECRET,
+        { expiresIn: "1h" }
+      );
+
       res.status(200).json({
-        message: "Login sucessfully",
+        message: "Login successfully",
+        token,
         user: {
           id: user.id,
           username: user.username,
@@ -76,6 +84,19 @@ const UserController = {
         },
       });
     });
+  },
+
+  listUsers: (req, res) => {
+    db.all(
+      "SELECT id, username, email, role, created_at FROM users",
+      [],
+      (err, rows) => {
+        if (err) {
+          return res.status(500).json({ error: err.message });
+        }
+        res.json({ users: rows });
+      }
+    );
   },
 };
 

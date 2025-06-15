@@ -4,9 +4,9 @@ const path = require("path");
 const dbPath = path.resolve(__dirname, "database.db");
 const db = new sqlite3.Database(dbPath, (err) => {
   if (err) {
-    console.error("Erro ao conectar ao banco de dados:", err.message);
+    console.error("Error connecting to the database:", err.message);
   } else {
-    console.log("Conectado ao banco de dados SQLite.");
+    console.log("Connected to the SQLite database.");
 
     db.run(
       `
@@ -21,9 +21,9 @@ const db = new sqlite3.Database(dbPath, (err) => {
     `,
       (err) => {
         if (err) {
-          console.error("Erro ao criar tabela users:", err.message);
+          console.error("Error creating users table:", err.message);
         } else {
-          console.log("Tabela users criada ou já existe.");
+          console.log("Users table created or already exists.");
         }
       }
     );
