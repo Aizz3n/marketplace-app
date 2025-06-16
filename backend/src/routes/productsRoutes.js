@@ -3,8 +3,10 @@ const router = express.Router();
 const ProductController = require("../controllers/ProductController.js");
 const authenticateToken = require("../middlewares/auth.js");
 
-router.post("/", authenticateToken, ProductController.create);
 router.get("/", ProductController.listAll);
 router.get("/:id", ProductController.getById);
+router.post("/", authenticateToken, ProductController.create);
+router.put("/:id", authenticateToken, ProductController.update);
+router.delete("/:id", authenticateToken, ProductController.delete);
 
 module.exports = router;
