@@ -33,9 +33,38 @@ const ProductController = {
   },
 
   listAll: (req, res) => {
-    db.all("SELECT * FROM products", [], (err, rows) => {
-      if (err) return res.status(500).json({ error: err.message });
-      res.json({ products: rows });
+    const { name, minPrice, maxPrice } = req.query;
+
+    let query = `SELECT * FROM products`;
+    let conditions = [];
+    let params = [];
+
+    if (name) {
+      conditions.push("name LIKE ?");
+      params.push(`%${name}%`);
+    }
+
+    if (minPrice) {
+      conditions.push("price >= ?");
+      params.push(minPrice);
+    }
+
+    if (maxPrice) {
+      conditions.push("price <= ?");
+      params.push(maxPrice);
+    }
+
+    if (conditions.length > 0) {
+      query += ` WHERE ` + conditions.join(" AND ");
+    }
+
+    db.all(query, params, (err, rows) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ message: "Error fetching products" });
+      }
+
+      return res.status(200).json({ products: rows });
     });
   },
 
