@@ -98,6 +98,36 @@ const UserController = {
       }
     );
   },
+
+  getSellerWithProducts: (req, res) => {
+    const sellerId = req.params.id;
+
+    const userQuery =
+      "SELECT id, username, email FROM users WHERE id = ? AND role = 'seller'";
+
+    db.get(userQuery, [sellerId], (err, user) => {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+
+      if (!user) {
+        return res.status(404).json({ error: "Seller not found" });
+      }
+
+      const productsQuery = "SELECT * FROM products WHERE seller_id = ?";
+
+      db.all(productsQuery, [sellerId], (err, products) => {
+        if (err) {
+          return res.status(500).json({ error: err.message });
+        }
+
+        res.json({
+          seller: user,
+          products: products,
+        });
+      });
+    });
+  },
 };
 
 module.exports = UserController;
