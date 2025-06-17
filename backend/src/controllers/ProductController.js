@@ -183,6 +183,35 @@ const ProductController = {
       res.json({ product });
     });
   },
+
+  getBySeller: (req, res) => {
+    const seller_id = req.params.id;
+
+    const checkSellerQuery =
+      "SELECT id, username, email FROM users WHERE id = ? AND role = 'seller'";
+
+    db.get(checkSellerQuery, [seller_id], (err, seller) => {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+
+      if (!seller) {
+        return res.status(404).json({ error: "Seller not found" });
+      }
+
+      const query = "SELECT * FROM products WHERE seller_id = ?";
+      db.all(query, [seller_id], (err, products) => {
+        if (err) {
+          return res.status(500).json({ error: err.message });
+        }
+
+        res.json({
+          seller,
+          products,
+        });
+      });
+    });
+  },
 };
 
 module.exports = ProductController;
