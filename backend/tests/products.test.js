@@ -98,4 +98,61 @@ describe("Product endpoints", () => {
 
     expect(res.statusCode).toEqual(404);
   });
+
+  it("should not update a product if user is not the seller", async () => {
+    const buyerRegister = await request(app).post("/users/register").send({
+      username: "buyeruser",
+      email: "buyer@example.com",
+      password: "password123",
+      role: "buyer",
+    });
+
+    const buyerLogin = await request(app).post("/users/login").send({
+      email: "buyer@example.com",
+      password: "password123",
+    });
+
+    const buyerToken = buyerLogin.body.token;
+
+    const res = await request(app)
+      .put(`/products/${productId}`)
+      .set("Authorization", `Bearer ${buyerToken}`)
+      .send({
+        name: "Hacker Update",
+      });
+
+    expect(res.statusCode).toEqual(403);
+    expect(res.body).toHaveProperty(
+      "error",
+      "Only sellers can update products."
+    );
+  });
+
+  it("should not delete a product if user is not the seller", async () => {
+    const buyerLogin = await request(app).post("/users/login").send({
+      email: "buyer@example.com",
+      password: "password123",
+    });
+    const buyerToken = buyerLogin.body.token;
+
+    const createRes = await request(app)
+      .post("/products")
+      .set("Authorization", `Bearer ${sellerToken}`)
+      .send({
+        name: "Product to delete",
+        price: 10,
+      });
+
+    const newProductId = createRes.body.productID;
+
+    const res = await request(app)
+      .delete(`/products/${newProductId}`)
+      .set("Authorization", `Bearer ${buyerToken}`);
+
+    expect(res.statusCode).toEqual(403);
+    expect(res.body).toHaveProperty(
+      "error",
+      "Only sellers can delete products."
+    );
+  });
 });
