@@ -86,6 +86,75 @@ const UserController = {
     });
   },
 
+  updateUser: async (req, res) => {
+    const userId = parseInt(req.params.id);
+    const { username, email, password } = req.body;
+    const requesterId = req.user.id;
+
+    if (requesterId !== userId) {
+      return res.status(403).json({
+        error: "You can only update your own profile.",
+      });
+    }
+
+    const updates = [];
+    const values = [];
+
+    if (username) {
+      updates.push("username = ?");
+      values.push(username);
+    }
+
+    if (email) {
+      updates.push("email = ?");
+      values.push(email);
+    }
+
+    if (password) {
+      try {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        updates.push("password = ?");
+        values.push(hashedPassword);
+      } catch (err) {
+        return res.status(500).json({ error: err.message });
+      }
+    }
+
+    if (updates.length === 0) {
+      return res.status(400).json({ error: "No fields to update." });
+    }
+
+    const sql = `UPDATE users SET ${updates.join(", ")} WHERE id = ?`;
+    values.push(userId);
+
+    db.run(sql, values, function (err) {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+
+      res.status(200).json({ message: "User updated successfully" });
+    });
+  },
+
+  deleteUser: (req, res) => {
+    const userId = parseInt(req.params.id);
+    const requesterId = req.user.id;
+
+    if (requesterId !== userId) {
+      return res
+        .status(403)
+        .json({ error: "You can only delete your own account. " });
+    }
+
+    db.run("DELETE FROM users WHERE id = ?", [userId], function (err) {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+
+      res.status(200).json({ message: "User deleted successfully" });
+    });
+  },
+
   listUsers: (req, res) => {
     db.all(
       "SELECT id, username, email, role, created_at FROM users",

@@ -8,5 +8,7 @@ router.get("/", authenticateToken, UserController.listUsers);
 router.get("/:id/products", UserController.getSellerWithProducts);
 router.post("/register", UserController.register);
 router.post("/login", UserController.login);
+router.patch("/:id", authenticateToken, UserController.updateUser);
+router.delete("/:id", authenticateToken, UserController.deleteUser);
 
 module.exports = router;
