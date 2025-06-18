@@ -2,7 +2,10 @@ const db = require("../database/database");
 
 const ProductController = {
   create: (req, res) => {
-    const { name, description, price } = req.body;
+    console.log("Create Product - req.body:", req.body);
+    console.log("Create Product - req.user:", req.user);
+
+    const { name, description, price, stock } = req.body;
     const seller_id = req.user.id;
 
     if (req.user.role !== "seller") {
@@ -17,38 +20,55 @@ const ProductController = {
         .json({ error: "Name is required and must be a non-empty string." });
     }
 
-    if (price === undefined || isNaN(price) || Number(price) <= 0) {
+    if (price === undefined || isNaN(Number(price)) || Number(price) <= 0) {
       return res
         .status(400)
         .json({ error: "Price must be a positive number." });
     }
 
+    if (stock === undefined || isNaN(Number(stock)) || Number(stock) < 0) {
+      return res
+        .status(400)
+        .json({ error: "Stock must be a non-negative number." });
+    }
+
     const query = `
-      INSERT INTO products (name, description, price, seller_id)
-      VALUES (?, ?, ?, ?)
+      INSERT INTO products (name, description, price, stock, seller_id) 
+      VALUES (?, ?, ?, ?, ?)
     `;
 
-    db.run(query, [name, description, price, seller_id], function (err) {
-      if (err) {
-        return res.status(500).json({ error: err.message });
-      }
+    db.run(
+      query,
+      [name.trim(), description || "", Number(price), Number(stock), seller_id],
+      function (err) {
+        if (err) {
+          console.error("DB error creating product:", err.message);
+          return res.status(500).json({ error: err.message });
+        }
 
-      res.status(201).json({
-        message: "Product created successfully",
-        productID: this.lastID,
-      });
-    });
+        res.status(201).json({
+          message: "Product created successfully",
+          productID: this.lastID,
+        });
+      }
+    );
   },
 
   update: (req, res) => {
     const { id } = req.params;
-    const { name, description, price } = req.body;
+    const { name, description, price, stock } = req.body;
     const seller_id = req.user.id;
 
     if (price !== undefined && (isNaN(price) || Number(price) <= 0)) {
       return res
         .status(400)
         .json({ error: "Price must be a positive number." });
+    }
+
+    if (stock !== undefined && (isNaN(stock) || stock < 0)) {
+      return res
+        .status(400)
+        .json({ error: "Stock must be a non-negative number." });
     }
 
     if (
@@ -79,16 +99,17 @@ const ProductController = {
       }
 
       const updateQuery = `
-      UPDATE products SET
-        name = COALESCE(?, name),
-        description = COALESCE(?, description),
-        price = COALESCE(?, price)
-      WHERE id = ? AND seller_id = ?
+        UPDATE products SET
+          name = COALESCE(?, name),
+          description = COALESCE(?, description),
+          price = COALESCE(?, price),
+          stock = COALESCE(?, stock)
+        WHERE id = ? AND seller_id = ?
       `;
 
       db.run(
         updateQuery,
-        [name, description, price, id, seller_id],
+        [name, description, price, stock, id, seller_id],
         function (err) {
           if (err) {
             return res.status(500).json({ error: err.message });
@@ -123,13 +144,12 @@ const ProductController = {
       }
 
       const deleteQuery = "DELETE FROM products WHERE id = ? AND seller_id = ?";
-
       db.run(deleteQuery, [id, seller_id], function (err) {
         if (err) {
           return res.status(500).json({ error: err.message });
         }
 
-        res.json({ message: "Product deleted successfully. " });
+        res.json({ message: "Product deleted successfully." });
       });
     });
   },

@@ -10,8 +10,10 @@ describe("Product endpoints", () => {
 
   beforeAll((done) => {
     db.serialize(() => {
-      db.run("DELETE FROM products");
-      db.run("DELETE FROM users", done);
+      db.run("DELETE FROM products", (err) => {
+        if (err) return done(err);
+        db.run("DELETE FROM users", done);
+      });
     });
   });
 
@@ -45,6 +47,7 @@ describe("Product endpoints", () => {
         name: "Product 1",
         description: "Product description",
         price: 100,
+        stock: 10, // *** necessário passar stock ***
       });
 
     expect(res.statusCode).toEqual(201);
@@ -87,10 +90,7 @@ describe("Product endpoints", () => {
       .set("Authorization", `Bearer ${sellerToken}`);
 
     expect(res.statusCode).toEqual(200);
-    expect(res.body).toHaveProperty(
-      "message",
-      "Product deleted successfully. "
-    );
+    expect(res.body).toHaveProperty("message", "Product deleted successfully.");
   });
 
   it("should return 404 for deleted product", async () => {
@@ -100,7 +100,7 @@ describe("Product endpoints", () => {
   });
 
   it("should not update a product if user is not the seller", async () => {
-    const buyerRegister = await request(app).post("/users/register").send({
+    await request(app).post("/users/register").send({
       username: "buyeruser",
       email: "buyer@example.com",
       password: "password123",
@@ -141,6 +141,7 @@ describe("Product endpoints", () => {
       .send({
         name: "Product to delete",
         price: 10,
+        stock: 5, // também necessário
       });
 
     const newProductId = createRes.body.productID;

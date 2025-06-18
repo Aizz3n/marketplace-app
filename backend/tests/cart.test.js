@@ -41,6 +41,7 @@ describe("Cart endpoints", () => {
         name: "Test Product",
         description: "Test desc",
         price: 50,
+        stock: 10,
       });
 
     productId = res.body.productID;
