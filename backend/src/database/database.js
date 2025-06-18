@@ -48,6 +48,27 @@ const db = new sqlite3.Database(dbPath, (err) => {
         }
       }
     );
+
+    db.run(
+      `
+      CREATE TABLE IF NOT EXISTS cart_items (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        buyer_id INTEGER NOT NULL,
+        product_id INTEGER NOT NULL,
+        quantity INTEGER NOT NULL DEFAULT 1,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (buyer_id) REFERENCES users(id),
+        FOREIGN KEY (product_id) REFERENCES products(id)
+      );
+      `,
+      (err) => {
+        if (err) {
+          console.error("Error creating cart table:", err.message);
+        } else {
+          console.log("Cart table created or already exists.");
+        }
+      }
+    );
   }
 });
 
