@@ -36,7 +36,7 @@ const db = new sqlite3.Database(dbPath, (err) => {
         description TEXT,
         price REAL NOT NULL,
         seller_id INTEGER NOT NULL,
-        create_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (seller_id) REFERENCES users(id)
       )      
       `,
@@ -44,7 +44,7 @@ const db = new sqlite3.Database(dbPath, (err) => {
         if (err) {
           console.error("Error creating products table:", err.message);
         } else {
-          console.log("Table products created of already exists.");
+          console.log("Products table created or already exists.");
         }
       }
     );
