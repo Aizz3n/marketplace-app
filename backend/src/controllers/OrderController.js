@@ -16,7 +16,6 @@ const OrderController = {
       if (!items.length)
         return res.status(400).json({ error: "Cart is empty" });
 
-      // Verifica estoque
       for (let item of items) {
         if (item.quantity > item.stock) {
           return res.status(400).json({
@@ -30,7 +29,6 @@ const OrderController = {
         0
       );
 
-      // Cria pedido
       const insertOrder = `INSERT INTO orders (buyer_id, total) VALUES (?, ?)`;
       db.run(insertOrder, [buyer_id, total], function (err) {
         if (err) return res.status(500).json({ error: err.message });
@@ -75,7 +73,7 @@ const OrderController = {
 
     const query = `
       SELECT o.id AS order_id, o.total, o.status, o.created_at,
-             oi.product_id, oi.quantity, oi.price
+      oi.product_id, oi.quantity, oi.price
       FROM orders o
       JOIN order_items oi ON o.id = oi.order_id
       WHERE o.buyer_id = ?

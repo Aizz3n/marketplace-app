@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Register - Marketplace</title>
+    <link rel="stylesheet" href="./css/style.css" />
+  </head>
+  <body>
+    <div class="login-container">
+      <h2>Register</h2>
+      <form id="register-form">
+        <input type="text" id="username" placeholder="Username" required />
+        <input type="email" id="email" placeholder="Email" required />
+        <input type="password" id="password" placeholder="Password" required />
+        <select id="role" required>
+          <option value="" disabled selected>Select role</option>
+          <option value="buyer">Buyer</option>
+          <option value="seller">Seller</option>
+        </select>
+        <button type="submit">Register</button>
+        <p>Already have an account? <a href="login.html">Login here</a></p>
+        <div class="message" id="message"></div>
+      </form>
+    </div>
+
+    <script src="./js/register.js"></script>
+  </body>
+</html>
