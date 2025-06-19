@@ -5,5 +5,6 @@ const OrderController = require("../controllers/OrderController");
 
 router.post("/checkout", authenticateToken, OrderController.checkout);
 router.get("/my-orders", authenticateToken, OrderController.listMyOrders);
+router.get("/seller", authenticateToken, OrderController.listSellerOrders);
 
 module.exports = router;

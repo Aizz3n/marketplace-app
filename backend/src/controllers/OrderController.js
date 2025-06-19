@@ -106,6 +106,46 @@ const OrderController = {
       res.json({ orders: Object.values(orders) });
     });
   },
+
+  listSellerOrders: (req, res) => {
+    const seller_id = req.user.id;
+
+    const query = `
+    SELECT o.id AS order_id, o.created_at, u.email AS buyer_email,
+    oi.product_id, oi.quantity, oi.price, p.name
+    FROM orders o
+    JOIN order_items oi ON o.id = oi.order_id
+    JOIN products p ON oi.product_id = p.id
+    JOIN users u ON o.buyer_id = u.id
+    WHERE p.seller_id = ?
+    ORDER BY o.created_at DESC
+  `;
+
+    db.all(query, [seller_id], (err, rows) => {
+      if (err) return res.status(500).json({ error: err.message });
+
+      const orders = {};
+      rows.forEach((row) => {
+        if (!orders[row.order_id]) {
+          orders[row.order_id] = {
+            order_id: row.order_id,
+            created_at: row.created_at,
+            buyer_email: row.buyer_email,
+            items: [],
+          };
+        }
+
+        orders[row.order_id].items.push({
+          product_id: row.product_id,
+          name: row.name,
+          quantity: row.quantity,
+          price: row.price,
+        });
+      });
+
+      res.json({ orders: Object.values(orders) });
+    });
+  },
 };
 
 module.exports = OrderController;
