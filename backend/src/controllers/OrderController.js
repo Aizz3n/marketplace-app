@@ -111,19 +111,26 @@ const OrderController = {
     const seller_id = req.user.id;
 
     const query = `
-    SELECT o.id AS order_id, o.total, o.status, o.created_at,
-           oi.product_id, oi.quantity, oi.price,
-           u.username AS buyer_username
-    FROM orders o
-    JOIN order_items oi ON o.id = oi.order_id
-    JOIN products p ON oi.product_id = p.id
-    JOIN users u ON o.buyer_id = u.id
-    WHERE p.seller_id = ?
-    ORDER BY o.created_at DESC
-  `;
+      SELECT
+        o.id AS order_id,
+        o.buyer_id,
+        o.total,
+        o.status,
+        o.created_at,
+        oi.product_id,
+        oi.quantity,
+        oi.price,
+        p.name AS product_name
+      FROM orders o
+      JOIN order_items oi ON o.id = oi.order_id
+      JOIN products p ON oi.product_id = p.id
+      WHERE p.seller_id = ?
+      ORDER BY o.created_at DESC
+    `;
 
     db.all(query, [seller_id], (err, rows) => {
       if (err) return res.status(500).json({ error: err.message });
+      if (!rows.length) return res.json({ orders: [] });
 
       const orders = {};
 
@@ -131,16 +138,16 @@ const OrderController = {
         if (!orders[row.order_id]) {
           orders[row.order_id] = {
             order_id: row.order_id,
+            buyer_id: row.buyer_id,
             total: row.total,
             status: row.status,
             created_at: row.created_at,
-            buyer: row.buyer_username,
             items: [],
           };
         }
-
         orders[row.order_id].items.push({
           product_id: row.product_id,
+          product_name: row.product_name,
           quantity: row.quantity,
           price: row.price,
         });
