@@ -111,8 +111,9 @@ const OrderController = {
     const seller_id = req.user.id;
 
     const query = `
-    SELECT o.id AS order_id, o.created_at, u.email AS buyer_email,
-    oi.product_id, oi.quantity, oi.price, p.name
+    SELECT o.id AS order_id, o.total, o.status, o.created_at,
+           oi.product_id, oi.quantity, oi.price,
+           u.username AS buyer_username
     FROM orders o
     JOIN order_items oi ON o.id = oi.order_id
     JOIN products p ON oi.product_id = p.id
@@ -125,19 +126,21 @@ const OrderController = {
       if (err) return res.status(500).json({ error: err.message });
 
       const orders = {};
+
       rows.forEach((row) => {
         if (!orders[row.order_id]) {
           orders[row.order_id] = {
             order_id: row.order_id,
+            total: row.total,
+            status: row.status,
             created_at: row.created_at,
-            buyer_email: row.buyer_email,
+            buyer: row.buyer_username,
             items: [],
           };
         }
 
         orders[row.order_id].items.push({
           product_id: row.product_id,
-          name: row.name,
           quantity: row.quantity,
           price: row.price,
         });

@@ -1,117 +1,88 @@
-const cartContainer = document.getElementById("cart-container");
-const totalEl = document.getElementById("total");
+const cartList = document.getElementById("cart-list");
+const totalDiv = document.getElementById("total");
 const checkoutBtn = document.getElementById("checkout-btn");
-const logoutBtn = document.getElementById("logout-link");
-
 const token = localStorage.getItem("token");
 
 if (!token) {
+  alert("Please log in first");
   window.location.href = "login.html";
 }
 
-logoutBtn.addEventListener("click", () => {
-  localStorage.clear();
-  window.location.href = "login.html";
-});
+let cartItems = [];
 
-async function fetchCart() {
-  try {
-    const res = await fetch("http://localhost:3000/cart", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+function fetchCart() {
+  fetch("http://localhost:3000/cart", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      cartItems = data.cart;
+      displayCart();
     });
-
-    const data = await res.json();
-    cartContainer.innerHTML = "";
-    let total = 0;
-
-    data.cart.forEach((item) => {
-      total += item.price * item.quantity;
-
-      const div = document.createElement("div");
-      div.classList.add("cart-item");
-
-      div.innerHTML = `
-        <span>${item.name} (R$ ${item.price.toFixed(2)})</span>
-        <input type="number" value="${item.quantity}" min="1" />
-        <button>🗑️</button>
-      `;
-
-      const input = div.querySelector("input");
-      input.addEventListener("change", () => {
-        updateQuantity(item.cart_id, parseInt(input.value));
-      });
-
-      const removeBtn = div.querySelector("button");
-      removeBtn.addEventListener("click", () => {
-        removeFromCart(item.cart_id);
-      });
-
-      cartContainer.appendChild(div);
-    });
-
-    totalEl.textContent = total.toFixed(2);
-  } catch (err) {
-    console.error("Erro ao buscar carrinho:", err);
-  }
 }
 
-async function updateQuantity(cartId, quantity) {
-  try {
-    const res = await fetch(`http://localhost:3000/cart/${cartId}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ quantity }),
-    });
+function displayCart() {
+  cartList.innerHTML = "";
+  let total = 0;
 
-    if (res.ok) {
-      fetchCart();
-    }
-  } catch (err) {
-    console.error("Erro ao atualizar quantidade:", err);
-  }
+  cartItems.forEach((item) => {
+    total += item.quantity * item.price;
+
+    const li = document.createElement("li");
+    li.innerHTML = `
+      Product #${item.product_id} - 
+      <input type="number" value="${item.quantity}" min="1" id="qty-${
+      item.cart_id
+    }" />
+      × $${item.price.toFixed(2)}
+      <button onclick="updateQuantity(${item.cart_id})">Update</button>
+      <button onclick="removeItem(${item.cart_id})">Remove</button>
+    `;
+    cartList.appendChild(li);
+  });
+
+  totalDiv.innerText = `Total: $${total.toFixed(2)}`;
 }
 
-async function removeFromCart(cartId) {
-  try {
-    const res = await fetch(`http://localhost:3000/cart/${cartId}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    if (res.ok) {
-      fetchCart();
-    }
-  } catch (err) {
-    console.error("Erro ao remover item:", err);
-  }
+function updateQuantity(cart_id) {
+  const quantity = document.getElementById(`qty-${cart_id}`).value;
+  fetch(`http://localhost:3000/cart/${cart_id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ quantity: parseInt(quantity) }),
+  }).then(fetchCart);
 }
 
-checkoutBtn.addEventListener("click", async () => {
-  try {
-    const res = await fetch("http://localhost:3000/orders/checkout", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+function removeItem(cart_id) {
+  fetch(`http://localhost:3000/cart/${cart_id}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }).then(fetchCart);
+}
 
-    const data = await res.json();
-    if (res.ok) {
-      alert("Pedido realizado com sucesso!");
+checkoutBtn.addEventListener("click", () => {
+  fetch("http://localhost:3000/orders/checkout", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+    .then((res) => {
+      if (res.ok) return res.json();
+      else throw new Error("Checkout failed");
+    })
+    .then((data) => {
+      alert("Order placed! Order ID: " + data.order_id);
       fetchCart();
-    } else {
-      alert(data.error || "Erro no checkout");
-    }
-  } catch (err) {
-    alert("Erro ao finalizar pedido.");
-  }
+    })
+    .catch((err) => alert(err.message));
 });
 
 fetchCart();

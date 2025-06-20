@@ -72,3 +72,16 @@ select:focus {
   color: red;
   text-align: center;
 }
+
+.orders-list {
+  list-style: none;
+  padding: 0;
+}
+
+.orders-list li {
+  background-color: #f2f2f2;
+  margin-bottom: 20px;
+  padding: 15px;
+  border-left: 5px solid #3498db;
+  border-radius: 8px;
+}
