@@ -7,12 +7,21 @@
     <link rel="stylesheet" href="./css/home.css" />
   </head>
   <body>
+    <div id="menu-container"></div>
+    <div id="message-container"></div>
+
     <header>
       <h1>🛍️ Marketplace</h1>
-      <nav>
-        <a href="login.html" id="auth-link">Login</a>
-        <a href="cart.html" id="cart-link" class="hidden">Carrinho</a>
-        <a href="#" id="logout-link" class="hidden">Logout</a>
+      <nav class="navbar">
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="create-product.html">Create Product</a></li>
+          <li><a href="my-products.html">My Products</a></li>
+          <li><a href="my-orders.html">My Orders</a></li>
+          <li><a href="seller-orders.html">Seller Orders</a></li>
+          <li><a href="cart.html">Cart</a></li>
+          <li><a href="#" id="logout-btn">Logout</a></li>
+        </ul>
       </nav>
     </header>
 
@@ -21,6 +30,8 @@
       <div id="products-container" class="grid"></div>
     </main>
 
+    <script src="./js/messages.js"></script>
+    <script src="./js/menu.js"></script>
     <script src="./js/home.js"></script>
   </body>
 </html>

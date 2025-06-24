@@ -19,7 +19,7 @@ form.addEventListener("submit", async (e) => {
     if (response.ok) {
       localStorage.setItem("token", data.token);
       localStorage.setItem("role", data.role);
-      window.location.href = "index.html";
+      window.location.href = "home.html";
     } else {
       message.textContent = data.error || "Login failed";
     }

@@ -2,18 +2,22 @@
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <title>My Orders - Marketplace</title>
+    <title>Checkout - Marketplace</title>
     <link rel="stylesheet" href="./css/style.css" />
   </head>
   <body>
     <div id="menu-container"></div>
     <div id="message-container"></div>
 
-    <h1>My Orders</h1>
-    <ul id="orders-list"></ul>
+    <h1>Checkout</h1>
+
+    <ul id="cart-items"></ul>
+    <p>Total: <span id="total-price">0</span></p>
+
+    <button id="finalize-btn">Finalizar Pedido</button>
 
     <script src="./js/messages.js"></script>
     <script src="./js/menu.js"></script>
-    <script src="./js/my-orders.js"></script>
+    <script src="./js/checkout.js"></script>
   </body>
 </html>

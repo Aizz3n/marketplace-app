@@ -4,6 +4,7 @@ const ProductController = require("../controllers/ProductController.js");
 const authenticateToken = require("../middlewares/auth.js");
 
 // Coloque a rota de seller antes do :id para evitar conflito na ordem
+router.get("/my-products", authenticateToken, ProductController.listMyProducts);
 router.get("/sellers/:id/products", ProductController.getBySeller);
 
 router.get("/:id", ProductController.getById);

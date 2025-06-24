@@ -232,6 +232,17 @@ const ProductController = {
       });
     });
   },
+  listMyProducts: (req, res) => {
+    const sellerId = req.user.id;
+
+    const query = `SELECT * FROM products WHERE seller_id = ?`;
+
+    db.all(query, [sellerId], (err, rows) => {
+      if (err) return res.status(500).json({ error: err.message });
+
+      res.json({ products: rows });
+    });
+  },
 };
 
 module.exports = ProductController;
